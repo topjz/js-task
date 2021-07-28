@@ -1,0 +1,19 @@
+{
+  "name": "topjz/jz-task",
+  "description": "The Topjz Task Package",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "chen3jian",
+      "email": "chen3jian@vip.qq.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "jz\\": "src/"
+    }
+  }
+}
