@@ -1,2 +1,2 @@
-# js-task
+# jz-task
 Timer
