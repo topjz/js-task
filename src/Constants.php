@@ -5,7 +5,7 @@
  * Time: 16:12
  */
 
-namespace js;
+namespace jz;
 
 
 class Constants

@@ -7,7 +7,7 @@
 
 namespace jz\Helper;
 
-use js\Constants;
+use jz\Constants;
 use jz\TaskConfig;
 
 class Path

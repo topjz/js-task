@@ -7,7 +7,7 @@
 
 namespace jz\Process;
 
-use js\Constants;
+use jz\Constants;
 use jz\Helper\Analysis;
 use jz\Helper\Common;
 use jz\Helper\Message;

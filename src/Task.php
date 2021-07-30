@@ -7,7 +7,6 @@
 
 namespace jz;
 
-use js\Constants;
 use jz\Helper\Analysis;
 use jz\Helper\Common;
 use jz\Helper\Message;
