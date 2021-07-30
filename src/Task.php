@@ -188,7 +188,7 @@ class Task
      */
     public function setErrorRegisterNotify($notify): Task
     {
-        if (Env::get(Constant::SERVER_CLOSE_ERROR_REGISTER_SWITCH_KEY)) {
+        if (TaskConfig::get(Constant::SERVER_CLOSE_ERROR_REGISTER_SWITCH_KEY)) {
             Message::showSysError(Constant::SERVER_NOTIFY_MUST_OPEN_ERROR_REGISTER_TIP);
         }
         if (!$notify instanceof Closure && !is_string($notify)) {
