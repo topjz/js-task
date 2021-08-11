@@ -55,4 +55,37 @@ class Log
         //组装
         return $date . " [$type] : " . $exception->getMessage() . ', File : ' . $exception->getFile() . ', Line : ' . $exception->getLine() . ", pid : $pid" . PHP_EOL;
     }
+
+    /**
+     * @param string $message
+     * @param string $type
+     * @param bool $isExit
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/8/4 17:54
+     */
+    public static function writeTypeLog(string $message, string $type = 'info', bool $isExit = false)
+    {
+        //格式化信息
+        $text = self::formatMessage($message, $type);
+
+        //记录日志
+        self::writeLog($text);
+        if ($isExit) exit();
+    }
+
+    /**
+     *保存标准输入|输出
+     * @param string $char 输入|输出
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/8/4 19:41
+     */
+    public static function saveStdChar(string $char)
+    {
+        $path = Path::getStdPath();
+        $file = $path . date('Y_m_d') . '.std';
+        $char = Common::convert_char($char);
+        file_put_contents($file, $char, FILE_APPEND);
+    }
 }

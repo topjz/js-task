@@ -69,6 +69,20 @@ class Common
     }
 
     /**
+     * 睡眠
+     * @param int $time
+     * @param int $type
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/8/4 18:34
+     */
+    public static function sleep(int $time, int $type = 1)
+    {
+        if ($type == 2) $time *= 1000;
+        $type == 1 ? sleep($time) : usleep($time);
+    }
+
+    /**
      * 编码转换
      * @param string $char
      * @param string $coding
@@ -85,5 +99,19 @@ class Common
             $char = mb_convert_encoding($char, $coding, $encoded);
         }
         return $char;
+    }
+
+    /**
+     * 设置进程标题
+     * @param string $title
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/8/4 17:57
+     */
+    public static function cli_set_process_title(string $title)
+    {
+        if (function_exists('cli_set_process_title')) {
+            cli_set_process_title($title);
+        }
     }
 }

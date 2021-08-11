@@ -13,6 +13,10 @@ use jz\Helper\Message;
 use jz\Helper\Path;
 use jz\process\Linux;
 use jz\Process\Win;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
+use Closure;
 
 /**
  * Created by chen3jian
@@ -187,13 +191,115 @@ class Task
      */
     public function setErrorRegisterNotify($notify): Task
     {
-        if (TaskConfig::get(Constant::SERVER_CLOSE_ERROR_REGISTER_SWITCH_KEY)) {
-            Message::showSysError(Constant::SERVER_NOTIFY_MUST_OPEN_ERROR_REGISTER_TIP);
+        if (TaskConfig::get(Constants::SERVER_ERROR_REGISTER_SWITCH_KEY)) {
+            Message::showSysError(Constants::SERVER_NOTIFY_MUST_OPEN_ERROR_REGISTER_TIP);
         }
         if (!$notify instanceof Closure && !is_string($notify)) {
-            Message::showSysError(Constant::SERVER_NOTIFY_PARAMS_CHECK_TIP);
+            Message::showSysError(Constants::SERVER_NOTIFY_PARAMS_CHECK_TIP);
         }
         TaskConfig::set(Constants::SERVER_NOTIFY_KEY, $notify);
+        return $this;
+    }
+
+    /**
+     * 添加自定义方法（闭包函数）
+     * @param Callable $func 闭包函数
+     * @param string $alas 别名
+     * @param int $time 间隔时间
+     * @param int $used 开启进程数
+     * @return $this
+     * @throws
+     */
+    public function addFunc(Callable $func, string $alas, int $time = 1, int $used = 1): Task
+    {
+        $uniqueId = md5($alas);
+        if (!($func instanceof Closure)) Message::showSysError(Constants::SERVER_CHECK_CLOSURE_TYPE_TIP);
+        if (isset($this->taskList[$uniqueId])) Message::showSysError("task $alas already exists");
+        Analysis::checkTaskTime($time);
+        $this->taskList[$uniqueId] = [
+            'type' => Constants::SERVER_TASK_FUNC_TYPE,
+            'func' => $func,
+            'alas' => $alas,
+            'time' => $time,
+            'used' => $used,
+        ];
+        return $this;
+    }
+
+    /**
+     * @param string $class
+     * @param string $func
+     * @param string $alas
+     * @param int $time
+     * @param int $used
+     * @return $this
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/7/31 11:51
+     */
+    public function addClass(string $class, string $func, string $alas, int $time = 1, int $used = 1): Task
+    {
+        $uniqueId = md5($alas);
+        if (!class_exists($class)) {
+            Message::showSysError("class {$class} is not exist");
+        }
+        if (isset($this->taskList[$uniqueId])) {
+            Message::showSysError(Constants::SERVER_TASK_SAME_NAME_TIP);
+        }
+        try {
+            $reflect = new ReflectionClass($class);
+            if (!$reflect->hasMethod($func)) {
+                Message::showSysError("class {$class}'s func {$func} is not exist");
+            }
+            $method = new ReflectionMethod($class, $func);
+            if (!$method->isPublic()) {
+                Message::showSysError("class {$class}'s func {$func} must public");
+            }
+            Analysis::checkTaskTime($time);
+            $this->taskList[$uniqueId] = [
+                'type' => $method->isStatic() ? Constants::SERVER_TASK_STATIC_CLASS_TYPE : Constants::SERVER_TASK_OBJECT_CLASS_TYPE,
+                'func' => $func,
+                'alas' => $alas,
+                'time' => $time,
+                'used' => $used,
+                'class' => $class,
+            ];
+        } catch (ReflectionException $exception) {
+            Message::showException($exception);
+        }
+
+        return $this;
+    }
+
+    /**
+     * 添加指令
+     * @param string $command
+     * @param string $alas
+     * @param int $time
+     * @param int $used
+     * @return $this
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/7/31 11:51
+     */
+    public function addCommand(string $command, string $alas, int $time = 1, int $used = 1): Task
+    {
+        $uniqueId = md5($alas);
+        if (!Analysis::canUseExcCommand()) {
+            Message::showSysError(Constants::SERVER_PROCESS_OPEN_CLOSE_DISABLED_TIP);
+        }
+        if (isset($this->taskList[$uniqueId])) {
+            Message::showSysError(Constants::SERVER_TASK_SAME_NAME_TIP);
+        }
+        Analysis::checkTaskTime($time);
+        $this->taskList[$uniqueId] = [
+            'type' => Constants::SERVER_TASK_COMMAND_TYPE,
+            'alas' => $alas,
+            'time' => $time,
+            'used' => $used,
+            'command' => $command,
+        ];
+
         return $this;
     }
 
@@ -213,16 +319,39 @@ class Task
             Error::register();
         }
 
-        //directory construction
+        // 运行目录初始化
         Path::initPath();
 
-        //process start
+        // 进程运行
         $process = $this->getProcess();
         $process->start();
     }
 
     /**
-     * 获取讲程
+     * 任务状态
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/7/31 12:06
+     */
+    public function status()
+    {
+        $process = $this->getProcess();
+        $process->status();
+    }
+
+    /**
+     * 任务停止
+     * @param bool $force
+     * @throws
+     */
+    public function stop(bool $force = false)
+    {
+        $process = $this->getProcess();
+        $process->stop($force);
+    }
+
+    /**
+     * 获取进程管理实例
      * @return Linux|Win
      * @author：cxj
      * @since：v1.0

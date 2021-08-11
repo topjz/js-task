@@ -32,7 +32,7 @@ class TaskConfig
      */
     public static function set(string $key, $value)
     {
-        static::$collection[$key] = $value;
+        self::$collection[$key] = $value;
     }
 
     /**
@@ -45,6 +45,6 @@ class TaskConfig
      */
     public static function get(string $key)
     {
-        return isset(static::$collection[$key]) ? static::$collection[$key] : false;
+        return self::$collection[$key] ?? false;
     }
 }

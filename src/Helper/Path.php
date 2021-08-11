@@ -150,6 +150,6 @@ class Path
      */
     public static function setRunTimePath(string $path = '')
     {
-        if (!$path) TaskConfig::set(Constants::SERVER_RUNTIME_PATH, realpath($path));
+        if ($path) TaskConfig::set(Constants::SERVER_RUNTIME_PATH, realpath($path));
     }
 }

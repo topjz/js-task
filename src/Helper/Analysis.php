@@ -8,6 +8,9 @@ declare(strict_types=1);
 
 namespace jz\Helper;
 
+use jz\Constants;
+use jz\TaskConfig;
+
 /**
  * 检测运行所需环境
  * Created by chen3jian
@@ -136,5 +139,43 @@ class Analysis
     public static function canUseEvent(): bool
     {
         return (extension_loaded('event'));
+    }
+
+    /**
+     * 检查是否可写标准输出日志
+     * @return bool
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/8/4 19:34
+     */
+    public static function canWriteStd(): bool
+    {
+        return TaskConfig::get(Constants::SERVER_DAEMON_KEY) && !TaskConfig::get(Constants::SERVER_STD_OUT_LOG_KEY);
+    }
+
+    /**
+     * 任务执行间隔时间检测
+     * @param $time
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/7/31 11:38
+     */
+    public static function checkTaskTime($time)
+    {
+        if (!is_numeric($time)) {
+            Message::showSysError('the time must be numeric and is currently ' . gettype($time));
+            return;
+        }
+
+        if ($time < 0) {
+            Message::showSysError('time must be greater than or equal to 0');
+            return;
+        }
+
+        if (is_float($time)) {
+            $currentOs = Common::isWin() ? 1 : 2;
+            $ext = $currentOs == 1 ? "dll" : "so";
+            if (!self::canUseEvent()) Message::showSysError("please install php_event.{$ext} extend for using milliseconds");
+        }
     }
 }

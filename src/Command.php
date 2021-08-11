@@ -2,6 +2,8 @@
 namespace jz;
 
 use \Closure as Closure;
+use jz\Helper\Message;
+use jz\Helper\Path;
 
 /**
  * Created by chen3jian
@@ -34,12 +36,12 @@ class Command
     private function initMsgFile()
     {
         //创建文件
-        $path = Helper::getCsgPath();
+        $path = Path::getCsgPath();
         $file = $path . '%s.csg';
         $this->msgFile = sprintf($file, md5(__FILE__));
         if (!file_exists($this->msgFile)) {
             if (!file_put_contents($this->msgFile, '[]', LOCK_EX)) {
-                Helper::showError('failed to create msgFile');
+                Message::showError(Constants::SERVER_CREATE_MSG_FAIL_TIP);
             }
         }
     }
@@ -48,10 +50,10 @@ class Command
      * 获取数据
      * @return array
      * @author：cxj
-     * @since：v
+     * @since：v1.0
      * @Time: 2021/7/28 17:24
      */
-    public function get()
+    public function get(): array
     {
         $content = @file_get_contents($this->msgFile);
         if (!$content) {
@@ -62,7 +64,7 @@ class Command
     }
 
     /**
-     * 重置数据
+     * 写入数据
      * @param array $data
      * @author：cxj
      * @since：v
@@ -77,7 +79,7 @@ class Command
      * 投递数据
      * @param array $command
      * @author：cxj
-     * @since：v
+     * @since：v1.0
      * @Time: 2021/7/28 17:24
      */
     public function push(array $command)
@@ -91,7 +93,7 @@ class Command
      * 发送命令
      * @param array $command
      * @author：cxj
-     * @since：v
+     * @since：v1.0
      * @Time: 2021/7/28 17:24
      */
     public function send(array $command)
@@ -105,7 +107,7 @@ class Command
      * @param string $msgType 消息类型
      * @param mixed $command 收到的命令
      * @author：cxj
-     * @since：v
+     * @since：v1.0
      * @Time: 2021/7/28 17:24
      */
     public function receive(string $msgType, &$command)
@@ -127,13 +129,13 @@ class Command
     /**
      * 根据命令执行对应操作
      * @param string $msgType 消息类型
-     * @param Closure $func 执行函数
+     * @param callable $func 执行函数
      * @param int $time 等待方时间戳
      * @author：cxj
-     * @since：v
+     * @since：v1.0
      * @Time: 2021/7/28 17:24
      */
-    public function waitCommandForExecute(string $msgType, $func, int $time)
+    public function waitCommandForExecute(string $msgType, callable $func, int $time)
     {
         $command = '';
         $this->receive($msgType, $command);
