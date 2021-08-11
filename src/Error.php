@@ -8,7 +8,7 @@
 namespace jz;
 
 use jz\Exception\ErrorException;
-use jz\Helper\Log;
+use jz\Helper\Message;
 
 /**
  * 注册错误代理
@@ -100,10 +100,10 @@ class Error
 
         try {
             //标准化日志
-            $text = Log::formatException($exception, $type);
+            $text = Message::formatException($exception, $type);
 
             //本地日志储存
-            Log::writeLog($text);
+            Message::writeLog($text);
 
 
         } catch (\Throwable $e) {

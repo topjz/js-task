@@ -5,7 +5,6 @@ use jz\Command;
 use jz\Constants;
 use jz\Helper\Analysis;
 use jz\Helper\Common;
-use jz\Helper\Log;
 use jz\Helper\Message;
 use jz\TaskConfig;
 use \Event as Event;
@@ -237,21 +236,21 @@ abstract class Process
                 Message::showException($exception, 'exception', !$daemon);
             } else {
                 if (!$daemon) throw $exception;
-                Log::writeLog(Log::formatException($exception));
+                Message::writeLog(Message::formatException($exception));
             }
         } catch (Throwable $exception) {
             if (Common::isWin()) {
                 Message::showException($exception, 'exception', !$daemon);
             } else {
                 if (!$daemon) throw $exception;
-                Log::writeLog(Log::formatException($exception));
+                Message::writeLog(Message::formatException($exception));
             }
         }
 
         //Std_End
         if (Analysis::canWriteStd()) {
             $stdChar = ob_get_contents();
-            if ($stdChar) Log::saveStdChar($stdChar);
+            if ($stdChar) Message::saveStdChar($stdChar);
             ob_end_clean();
         }
 
