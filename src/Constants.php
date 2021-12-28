@@ -13,7 +13,7 @@ class Constants
     /**
      * server_prefix_value
      */
-    const SERVER_PREFIX_VAL = 'easy_task';
+    const SERVER_PREFIX_VAL = 'jz_task';
 
     /**
      * server_php_path

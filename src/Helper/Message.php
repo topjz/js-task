@@ -21,25 +21,6 @@ class Message
 {
     /**
      * 格式化异常信息
-     * @param $message
-     * @param string $type
-     * @return string
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 16:16
-     */
-    public static function formatMessage($message, $type = 'error')
-    {
-        //参数
-        $pid = getmypid();
-        $date = date('Y/m/d H:i:s', time());
-
-        //组装
-        return $date . " [$type] : " . $message . ", pid : $pid" . PHP_EOL;
-    }
-
-    /**
-     * 格式化异常信息
      * @param ErrorException|Exception|Throwable $exception
      * @param string $type
      * @return string
@@ -69,10 +50,11 @@ class Message
     public static function showException($exception, string $type = 'exception', bool $isExit = true)
     {
         //格式化信息
-        $text = self::formatException($exception, $type);
+        $text = Log::formatException($exception, $type);
 
         //记录日志
-        self::writeLog($text);
+        //var_dump('showException');
+        Log::writeLog($text);
 
         //输出信息
         self::output($text, $isExit);
@@ -90,10 +72,10 @@ class Message
     public static function showInfo(string $message, $isExit = false, $type = 'info')
     {
         //格式化信息
-        $text = self::formatMessage($message, $type);
+        $text = Log::formatMessage($message, $type);
 
         //记录日志
-        self::writeLog($text);
+        Log::writeLog($text);
 
         //输出信息
         self::output($text, $isExit);
@@ -144,10 +126,11 @@ class Message
     public static function showError(string $errStr, bool $isExit = true, string $type = 'error', bool $log = true)
     {
         //格式化信息
-        $text = self::formatMessage($errStr, $type);
+        $text = Log::formatMessage($errStr, $type);
 
         //记录日志
-        if ($log) self::writeLog($text);
+        //var_dump('showError');
+        if ($log) Log::writeLog($text);
 
         //输出信息
         self::output($text, $isExit);
@@ -165,47 +148,10 @@ class Message
     public static function showSysError($errStr, $isExit = true, $type = 'warring')
     {
         //格式化信息
-        $text = self::formatMessage($errStr, $type);
+        $text = Log::formatMessage($errStr, $type);
 
         //输出信息
         static::output($text, $isExit);
-    }
-
-    /**
-     * 保存类型日志
-     * @param string $message
-     * @param string $type
-     * @param bool $isExit
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 17:54
-     */
-    public static function writeTypeLog(string $message, string $type = 'info', bool $isExit = false)
-    {
-        //格式化信息
-        $text = Message::formatMessage($message, $type);
-
-        //记录日志
-        self::writeLog($text);
-        if ($isExit) exit();
-    }
-
-    /**
-     * 保存日志
-     * @param string $message
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:08
-     */
-    public static function writeLog(string $message)
-    {
-        //日志文件
-        $path = Path::getLogPath();
-        $file = $path . date('Y_m_d') . '.log';
-
-        //加锁保存
-        $message = Common::convert_char($message);
-        file_put_contents($file, $message, FILE_APPEND | LOCK_EX);
     }
 
     /**

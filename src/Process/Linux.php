@@ -11,6 +11,7 @@ namespace jz\Process;
 use jz\Constants;
 use jz\Helper\Analysis;
 use jz\Helper\Common;
+use jz\Helper\Log;
 use jz\Helper\Message;
 use jz\TaskConfig;
 
@@ -166,7 +167,7 @@ class Linux extends Process
         // 获取父进程id
         $item['ppid'] = posix_getppid();
         $text = "this worker {$item['alas']}";
-        Message::writeTypeLog("$text is start");
+        Log::writeTypeLog("$text is start");
 
         // 进程标题
         Common::cli_set_process_title($item['alas']);
@@ -174,7 +175,7 @@ class Linux extends Process
         // 捕获kill发出的SIGTERM信号
         // SIGTERM 程序结束(terminate、信号), 与SIGKILL不同的是该信号可以被阻塞和处理. 通常用来要求程序自己正常退出. shell命令kill缺省产生这个信号.
         pcntl_signal(SIGTERM, function () use ($text) {
-            Message::writeTypeLog("listened to the kill command, $text exit the program for safety");
+            Log::writeTypeLog("listened to the kill command, $text exit the program for safety");
         });
 
         //执行任务
@@ -220,7 +221,7 @@ class Linux extends Process
     protected function checkDaemonForExit(array $item)
     {
         if (!posix_kill($item['ppid'], 0)) {
-            Message::writeTypeLog("listened exit command, this worker {$item['alas']} is exiting safely", 'info', true);
+            Log::writeTypeLog("listened exit command, this worker {$item['alas']} is exiting safely", 'info', true);
         }
     }
 
@@ -237,7 +238,7 @@ class Linux extends Process
 
         //输出信息
         $text = "this manager";
-        Message::writeTypeLog("$text is start");
+        Log::writeTypeLog("$text is start");
         if (!TaskConfig::get(Constants::SERVER_DAEMON_KEY)) {
             Message::showTable($this->processStatus(), false);
             Message::showInfo('start success,press ctrl+c to stop');
@@ -246,13 +247,13 @@ class Linux extends Process
         // 捕获kill发出的SIGTERM信号
         // SIGTERM 程序结束(terminate、信号), 与SIGKILL不同的是该信号可以被阻塞和处理. 通常用来要求程序自己正常退出. shell命令kill缺省产生这个信号.
         pcntl_signal(SIGTERM, function () use ($text) {
-            Message::writeTypeLog("listened kill command $text is exiting safely", 'info', true);
+            Log::writeTypeLog("listened kill command $text is exiting safely", 'info', true);
         });
 
         //挂起进程
         while (true) {
             //CPU休息
-            Helper::sleep(1);
+            Common::sleep(1);
 
             //接收命令start/status/stop
             $this->commander->waitCommandForExecute(2, function ($command) use ($text) {
@@ -261,7 +262,7 @@ class Linux extends Process
                 $forceExitText = "listened exit command, $text is exiting unsafely";
                 if ($command['type'] == 'start') {
                     if ($command['time'] > $this->startTime) {
-                        Message::writeTypeLog($forceExitText);
+                        Log::writeTypeLog($forceExitText);
                         posix_kill(0, SIGKILL);
                     }
                 }
@@ -272,14 +273,14 @@ class Linux extends Process
                         'msgType' => 1,
                         'status' => $report,
                     ]);
-                    Message::writeTypeLog($statusText);
+                    Log::writeTypeLog($statusText);
                 }
                 if ($command['type'] == 'stop') {
                     if ($command['force']) {
-                        Message::writeTypeLog($forceExitText);
+                        Log::writeTypeLog($forceExitText);
                         posix_kill(0, SIGKILL);
                     } else {
-                        Message::writeTypeLog($exitText);
+                        Log::writeTypeLog($exitText);
                         exit();
                     }
                 }
@@ -317,7 +318,7 @@ class Linux extends Process
                 // 进程退出,重新fork
                 if (TaskConfig::get(Constants::SERVER_AUTO_RECOVER_KEY)) {
                     $this->forkItemExec($item['item']);
-                    Message::writeTypeLog("the worker {$item['name']}(pid:{$pid}) is stop,try to fork a new one");
+                    Log::writeTypeLog("the worker {$item['name']}(pid:{$pid}) is stop,try to fork a new one");
                     unset($this->processList[$key]);
                 }
             }

@@ -5,6 +5,7 @@ use jz\Command;
 use jz\Constants;
 use jz\Helper\Analysis;
 use jz\Helper\Common;
+use jz\Helper\Log;
 use jz\Helper\Message;
 use jz\TaskConfig;
 use \Event as Event;
@@ -133,7 +134,7 @@ abstract class Process
             }, $this->startTime);
 
             //CPU休息
-            Helper::sleep(1);
+            Common::sleep(1);
         }
         Message::showInfo(Constants::SERVER_PROCESS_CLOSED_TIP);
         exit;
@@ -236,14 +237,18 @@ abstract class Process
                 Message::showException($exception, 'exception', !$daemon);
             } else {
                 if (!$daemon) throw $exception;
-                Message::writeLog(Message::formatException($exception));
+
+                //var_dump('exception');
+                Log::writeLog(Message::formatException($exception));
             }
         } catch (Throwable $exception) {
             if (Common::isWin()) {
                 Message::showException($exception, 'exception', !$daemon);
             } else {
                 if (!$daemon) throw $exception;
-                Message::writeLog(Message::formatException($exception));
+
+                //var_dump('Throwable');
+                Log::writeLog(Message::formatException($exception));
             }
         }
 
