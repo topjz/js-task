@@ -14,25 +14,22 @@ namespace jz;
  * Class TaskConfig
  * @package jz
  */
-class TaskConfig
+class Config
 {
-    /**
-     * collection
-     * @var array
-     */
-    private static $collection;
+    /** @var array $list */
+    private static $list;
 
     /**
      * 设置配置
      * @param string $key
      * @param mixed $value
      * @author：cxj
-     * @since：v1.0
+     * @since：v2.0
      * @Time: 2021/7/28 20:58
      */
     public static function set(string $key, $value)
     {
-        self::$collection[$key] = $value;
+        static::$list[$key] = $value;
     }
 
     /**
@@ -40,11 +37,11 @@ class TaskConfig
      * @param string $key
      * @return mixed
      * @author：cxj
-     * @since：v1.0
+     * @since：v2.0
      * @Time: 2021/7/28 20:58
      */
     public static function get(string $key)
     {
-        return self::$collection[$key] ?? false;
+        return isset(static::$list[$key]) ?? false;
     }
 }
