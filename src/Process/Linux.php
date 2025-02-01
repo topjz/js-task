@@ -8,21 +8,20 @@ declare(ticks = 1);
 
 namespace jz\Process;
 
+use Closure;
 use jz\Config;
 use jz\Constants;
-use jz\Helper\Analysis;
 use jz\Helper\CheckEnv;
 use jz\Helper\Common;
-use jz\Helper\Log;
 use jz\Helper\Message;
-use jz\TaskConfig;
 
-/**
- * Created by chen3jian
- * Date: 2021/7/28
- * Time: 17:31
+/**\
+ * Linux
+ * Created by cxj
  * Class Linux
- * @package jz\process
+ * @Since：v2.0
+ * @Time：2025/2/2 03:35:42
+ * @package jz\Process
  */
 class Linux extends Process
 {
@@ -39,14 +38,15 @@ class Linux extends Process
     public function __construct(array $taskList)
     {
         parent::__construct($taskList);
-        if (CheckEnv::canUseAsyncSignal()) Common::openAsyncSignal();
+        if (Config::get(Constants::CAN_ASYNC)) Common::openAsyncSignal();
     }
 
     /**
      * 开始运行
+     * @return void
+     * @Time：2025/2/2 03:39:31
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:24
      */
     public function start()
     {
@@ -57,7 +57,7 @@ class Linux extends Process
         ]);
 
         //异步处理
-        if (TaskConfig::get(Constants::DAEMON)) {
+        if (Config::get(Constants::DAEMON)) {
             Common::setMask();
             $this->fork(
                 function () {
@@ -71,7 +71,7 @@ class Linux extends Process
                      */
                     $sid = posix_setsid();
                     if ($sid < 0) {
-                        Message::showError(Constants::SERVER_SET_CHILD_PROCESS_MANAGER_FAILED_TIP);
+                        Message::showError(Constants::SYS_ERROR_SET_CHILD_PROCESS_MANAGER_FAILED);
                     }
                     // 分配进程处理任务
                     $this->allocate();
@@ -80,26 +80,29 @@ class Linux extends Process
                     // 设置不阻塞
                     pcntl_wait($status, WNOHANG);
                     $this->status();
-                    $this->masterWaitExit();
                 }
             );
         }
+
+        // 同步处理
+        $this->allocate();
     }
 
     /**
      * 创建子进程
-     * @param Callable $childInvoke
-     * @param Callable $mainInvoke
+     * @param Closure $childInvoke
+     * @param Closure $mainInvoke
+     * @return void
+     * @Time：2025/2/2 03:39:46
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 17:36
      */
-    protected function fork(callable $childInvoke, callable $mainInvoke)
+    protected function fork(Closure $childInvoke, Closure $mainInvoke)
     {
         //创建进程
         $pid = pcntl_fork();
         if ($pid == -1) {
-            Message::showError(Constants::SERVER_FORK_CHILD_PROCESS_FAIL_TIP);
+            Message::showError(Constants::SYS_ERROR_FORK_CHILD_PROCESS_FAIL);
         } elseif ($pid) {
             $mainInvoke($pid);
         } else {
@@ -109,15 +112,16 @@ class Linux extends Process
 
     /**
      * 分配进程处理任务
+     * @return void
+     * @Time：2025/2/2 03:42:08
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 17:36
      */
     protected function allocate()
     {
         foreach ($this->taskList as $item) {
             //提取参数
-            $prefix = TaskConfig::get(Constants::PREFIX);
+            $prefix = Config::get(Constants::PREFIX);
             $item['data'] = date('Y-m-d H:i:s');
             $item['alas'] = "{$prefix}_{$item['alas']}";
             $used = $item['used'];
@@ -135,9 +139,10 @@ class Linux extends Process
     /**
      * 创建任务执行的子进程
      * @param array $item
+     * @return void
+     * @Time：2025/2/2 03:43:24
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 17:36
      */
     protected function forkItemExec(array $item)
     {
@@ -160,6 +165,7 @@ class Linux extends Process
     /**
      * 执行器
      * @param array $item
+     * @throws \Throwable
      * @author：cxj
      * @since：v1.0
      * @Time: 2021/8/4 17:51
@@ -209,16 +215,17 @@ class Linux extends Process
 
             // 信号处理(同步/异步)
             // 是处理已经收到的信号，调用每个通过pcntl_signal() 安装的处理器的回调方法。
-            if (!CheckEnv::canUseAsyncSignal()) pcntl_signal_dispatch();
+            if (!Config::get(Constants::CAN_ASYNC)) pcntl_signal_dispatch();
         }
     }
 
     /**
      * 检查常驻进程是否存活
      * @param array $item
+     * @return void
+     * @Time：2025/2/2 03:45:05
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:43
      */
     protected function checkDaemonForExit(array $item)
     {
@@ -229,14 +236,15 @@ class Linux extends Process
 
     /**
      * 守护进程常驻
+     * @return mixed
+     * @Time：2025/2/2 03:45:15
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:46
      */
     protected function daemonWait()
     {
         //设置进程标题
-        Common::cli_set_process_title(TaskConfig::get(Constants::PREFIX));
+        Common::cli_set_process_title(Config::get(Constants::PREFIX));
 
         //输出信息
         $text = "this manager";
@@ -290,7 +298,7 @@ class Linux extends Process
             }, $this->startTime);
 
             //信号调度
-            if (!CheckEnv::canUseAsyncSignal()) pcntl_signal_dispatch();
+            if (!Config::get(Constants::CAN_ASYNC)) pcntl_signal_dispatch();
 
             // 检查进程
             if (Config::get(Constants::CAN_AUTO_RECOVER)) $this->processStatus();
@@ -304,7 +312,7 @@ class Linux extends Process
      * @since：v1.0
      * @Time: 2021/8/4 20:10
      */
-    protected function processStatus()
+    protected function processStatus(): array
     {
         $report = [];
         foreach ($this->processList as $key => $item) {

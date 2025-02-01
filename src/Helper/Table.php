@@ -17,61 +17,34 @@ namespace jz\Helper;
  */
 class Table
 {
-    /**
-     * 左对齐
-     */
+    /** @var int 左对齐 */
     const ALIGN_LEFT = 1;
 
-    /**
-     * 右对齐
-     */
+    /** @var int 右对齐 */
     const ALIGN_RIGHT = 0;
 
-    /**
-     * 居中对齐
-     */
+    /** @var int 居中对齐 */
     const ALIGN_CENTER = 2;
 
-    /**
-     * 头信息数据
-     * @var array
-     */
+    /** @var array 头信息数据 */
     protected $header = [];
 
-    /**
-     * 头部对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
-     * @var int
-     */
+    /** @var int 头部对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER */
     protected $headerAlign = self::ALIGN_LEFT;
 
-    /**
-     * 表格数据（二维数组）
-     * @var array
-     */
+    /** @var array 表格数据（二维数组） */
     protected $rows = [];
 
-    /**
-     * 单元格对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
-     * @var int
-     */
+    /** @var int 单元格对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER */
     protected $cellAlign = self::ALIGN_LEFT;
 
-    /**
-     * 单元格宽度信息
-     * @var array
-     */
+    /** @var array 单元格宽度信息 */
     protected $colWidth = [];
 
-    /**
-     * 表格输出样式
-     * @var string
-     */
+    /** @var string 表格输出样式 */
     protected $style = 'default';
 
-    /**
-     * 表格样式定义
-     * @var array
-     */
+    /** @var array 表格样式定义 */
     protected $format = [
         'compact' => [],
         'default' => [
@@ -121,17 +94,11 @@ class Table
      * @param array $header 要输出的Header信息
      * @param int $align 对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
      * @return void
-     */
-
-    /**
-     * 设置表格头信息 以及对齐方式
-     * @param array $header 要输出的Header信息
-     * @param int $align 对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
+     * @Time：2025/2/2 02:08:14
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:58
      */
-    public function setHeader(array $header, $align = self::ALIGN_LEFT)
+    public function setHeader(array $header, int $align = self::ALIGN_LEFT)
     {
         $this->header = $header;
         $this->headerAlign = $align;
@@ -142,11 +109,12 @@ class Table
      * 设置输出表格数据 及对齐方式
      * @param array $rows 要输出的表格数据（二维数组）
      * @param int $align 对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
+     * @return void
+     * @Time：2025/2/2 02:08:57
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:58
      */
-    public function setRows(array $rows, $align = self::ALIGN_LEFT)
+    public function setRows(array $rows, int $align = self::ALIGN_LEFT)
     {
         $this->rows = $rows;
         $this->cellAlign = $align;
@@ -158,10 +126,11 @@ class Table
 
     /**
      * 检查列数据的显示宽度
-     * @param mixed $row 行数据
+     * @param $row
+     * @return void
+     * @Time：2025/2/2 02:09:56
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:59
      */
     protected function checkColWidth($row)
     {
@@ -176,13 +145,14 @@ class Table
 
     /**
      * 增加一行表格数据
-     * @param mixed $row 行数据
+     * @param $row
      * @param bool $first 是否在开头插入
+     * @return void
+     * @Time：2025/2/2 02:10:41
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:59
      */
-    public function addRow($row, $first = false)
+    public function addRow($row, bool $first = false)
     {
         if ($first) {
             array_unshift($this->rows, $row);
@@ -196,21 +166,15 @@ class Table
     /**
      * 设置输出表格的样式
      * @param string $style 样式名
+     * @return void
+     * @Time：2025/2/2 02:11:14
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:59
      */
     public function setStyle(string $style)
     {
         $this->style = isset($this->format[$style]) ? $style : 'default';
     }
-
-    /**
-     * 输出分隔行
-     * @param string $pos 位置
-     * @return string
-     *
-     */
 
     /**
      * 输出分隔行

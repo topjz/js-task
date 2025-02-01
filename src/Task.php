@@ -185,7 +185,7 @@ class Task
         if (!$notify instanceof Closure && !is_string($notify)) {
             Message::showSysError(Constants::SYS_ERROR_NOTIFY_PARAMS_CHECK);
         }
-        Config::set(Constants::SERVER_NOTIFY_KEY, $notify);
+        Config::set(Constants::NOTIFY, $notify);
         return $this;
     }
 

@@ -7,7 +7,9 @@
 
 namespace jz;
 
+use Closure;
 use jz\Exception\ErrorException;
+use jz\Helper\Common;
 use jz\Helper\Log;
 use jz\Helper\Message;
 
@@ -42,9 +44,10 @@ class Error
      * @param string $errStr
      * @param string $errFile
      * @param int $errLine
+     * @return void
+     * @Time：2025/2/2 01:35:18
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:12
      */
     public static function appError(string $errno, string $errStr, string $errFile, int $errLine)
     {
@@ -58,24 +61,25 @@ class Error
 
     /**
      * appException
-     * @param mixed $exception (Exception|Throwable)
+     * @param $exception
+     * @return void
+     * @Time：2025/2/2 01:35:35
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:12
      */
     public static function appException($exception)
     {
         //日志记录
         $type = 'exception';
-        self::report($type, $exception);
+        static::report($type, $exception);
     }
 
     /**
      * appShutdown
-     * (Fatal Error|Parse Error)
+     * @return void
+     * @Time：2025/2/2 01:35:53
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:12
      */
     public static function appShutdown()
     {
@@ -84,29 +88,54 @@ class Error
         if (($error = error_get_last()) != null) {
             //日志记录
             $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
-            self::report($type, $exception);
+            static::report($type, $exception);
         }
     }
 
     /**
      * Report
      * @param string $type
-     * @param ErrorException $exception
+     * @param $exception
+     * @return void
+     * @Time：2025/2/2 01:36:17
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:12
      */
     public static function report(string $type, $exception)
     {
-
         try {
-            //标准化日志
+
+            // 标准化日志
             $text = Message::formatException($exception, $type);
 
-            //本地日志储存
-            //var_dump('report');
+            // 本地日志储存
             Message::writeLog($text);
 
+            // 同步模式输出
+            if (!Config::get(Constants::DAEMON)) {
+                echo($text);
+            }
+
+            // 回调上报信息
+            $notify = Config::get(Constants::NOTIFY);
+            if ($notify) {
+                // 闭包回调
+                if ($notify instanceof Closure) {
+                    $notify($exception);
+                    return;
+                }
+
+                // Http回调
+                $request = [
+                    'errStr' => $exception->getMessage(),
+                    'errFile' => $exception->getFile(),
+                    'errLine' => $exception->getLine(),
+                ];
+                $result = Common::curl($notify, $request);
+                if (!$result || $result != 'success') {
+                    Message::showError("["."{$notify}"."]".Constants::SHOW_ERROR_NOTIFY_ERROR, false, 'warring', true);
+                }
+            }
 
         } catch (\Throwable $e) {
             echo $e->getMessage();

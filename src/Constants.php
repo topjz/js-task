@@ -13,6 +13,9 @@ class Constants
     /** @var string 任务前缀 */
     const PREFIX = 'prefix';
 
+    /** @var string  任务通知*/
+    const NOTIFY = 'notify';
+
     /** @var string 是否能运行Event扩展函数 */
     const CAN_EVENT = 'canEvent';
 
@@ -85,6 +88,21 @@ class Constants
     /** @var string 系统错误：不支持的时间类型 */
     const SYS_ERROR_TIME_UNSUPPORTED = 'time parameter is an unsupported type';
 
+    /** @var string 系统错误：提示创建msg文件出错 */
+    const SYS_ERROR_CREATE_MSG_FAIL = 'failed to create msgFile';
+
+    /** @var string 系统错误：提示设置为主进程失败，请重试 */
+    const SYS_ERROR_SET_CHILD_PROCESS_MANAGER_FAILED = 'set child process For Manager failed,please try again';
+
+    /** @var string 系统错误：创建子进程失败，请重试 */
+    const SYS_ERROR_FORK_CHILD_PROCESS_FAIL = 'fork child process failed,please try again';
+
+
+    /** @var string 显示错误：请求http api错误 */
+    const SHOW_ERROR_NOTIFY_ERROR = 'request http api failed';
+
+    /** @var string 显示信息：提示进程已关闭，请重试 */
+    const SHOW_INFO_PROCESS_CLOSED = 'the process may have been closed, please try again';
 
     /** @var int 闭包函数类型定时任务 */
     const TASK_FUNC_TYPE = 1;
@@ -100,6 +118,11 @@ class Constants
 
 
 
+
+
+
+
+
     /**
      * server_prefix_value
      */
@@ -111,31 +134,5 @@ class Constants
     const SERVER_PHP_PATH = 'server_php_path';
 
 
-    /**
-     * server_notify_key
-     */
-    const SERVER_NOTIFY_KEY = 'server_notify_key';
 
-
-
-
-    /**
-     * 提示设置为主进程失败，请重试
-     */
-    const SERVER_SET_CHILD_PROCESS_MANAGER_FAILED_TIP = 'set child process For Manager failed,please try again';
-
-    /**
-     * 创建子进程失败，请重试
-     */
-    const SERVER_FORK_CHILD_PROCESS_FAIL_TIP = 'fork child process failed,please try again';
-
-    /**
-     * 提示创建msg文件出错
-     */
-    const SERVER_CREATE_MSG_FAIL_TIP = 'failed to create msgFile';
-
-    /**
-     * 提示进程已关闭，请重试
-     */
-    const SERVER_PROCESS_CLOSED_TIP = 'the process may have been closed, please try again';
 }
