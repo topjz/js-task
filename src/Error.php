@@ -8,6 +8,7 @@
 namespace jz;
 
 use jz\Exception\ErrorException;
+use jz\Helper\Log;
 use jz\Helper\Message;
 
 /**
@@ -95,7 +96,7 @@ class Error
      * @since：v1.0
      * @Time: 2021/7/28 17:12
      */
-    public static function report(string $type, ErrorException $exception)
+    public static function report(string $type, $exception)
     {
 
         try {
@@ -103,7 +104,8 @@ class Error
             $text = Message::formatException($exception, $type);
 
             //本地日志储存
-            Message::writeLog($text);
+            //var_dump('report');
+            Log::writeLog($text);
 
 
         } catch (\Throwable $e) {

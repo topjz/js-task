@@ -11,7 +11,7 @@ use jz\Helper\Analysis;
 use jz\Helper\Common;
 use jz\Helper\Message;
 use jz\Helper\Path;
-use jz\process\Linux;
+use jz\Process\Linux;
 use jz\Process\Win;
 use ReflectionClass;
 use ReflectionException;
