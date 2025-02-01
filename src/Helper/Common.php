@@ -23,9 +23,9 @@ class Common
     /**
      * 开启异步信号
      * @return bool
+     * @Time：2025/2/2 03:48:31
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:08
      */
     public static function openAsyncSignal(): bool
     {
@@ -34,9 +34,10 @@ class Common
 
     /**
      * 设置掩码
+     * @return void
+     * @Time：2025/2/2 03:48:45
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:08
      */
     public static function setMask()
     {
@@ -47,9 +48,10 @@ class Common
      * 睡眠
      * @param int $time
      * @param int $type
+     * @return void
+     * @Time：2025/2/2 03:48:55
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 18:34
      */
     public static function sleep(int $time, int $type = 1)
     {
@@ -62,9 +64,9 @@ class Common
      * @param string $char
      * @param string $coding
      * @return string
+     * @Time：2025/2/2 03:49:05
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:08
      */
     public static function convert_char(string $char, string $coding = 'UTF-8'): string
     {
@@ -79,9 +81,10 @@ class Common
     /**
      * 设置进程标题
      * @param string $title
+     * @return void
+     * @Time：2025/2/2 03:49:15
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 17:57
      */
     public static function cli_set_process_title(string $title)
     {

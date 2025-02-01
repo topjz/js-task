@@ -62,9 +62,9 @@ abstract class Process
     /**
      * 开始运行
      * @return mixed
+     * @Time：2025/2/2 03:51:45
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:22
      */
     abstract public function start();
 

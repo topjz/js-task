@@ -23,9 +23,6 @@ class ErrorException extends \Exception
      * @param string $errStr
      * @param string $errFile
      * @param string $errLine
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 20:58
      */
     public function __construct(string $severity, string $errStr, string $errFile, string $errLine)
     {

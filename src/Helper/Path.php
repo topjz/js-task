@@ -14,9 +14,10 @@ class Path
 {
     /**
      * 初始化所有目录
+     * @return void
+     * @Time：2025/2/2 03:50:22
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:08
      */
     public static function initPath()
     {

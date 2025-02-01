@@ -97,7 +97,6 @@ class Constants
     /** @var string 系统错误：创建子进程失败，请重试 */
     const SYS_ERROR_FORK_CHILD_PROCESS_FAIL = 'fork child process failed,please try again';
 
-
     /** @var string 显示错误：请求http api错误 */
     const SHOW_ERROR_NOTIFY_ERROR = 'request http api failed';
 
@@ -115,24 +114,4 @@ class Constants
 
     /** @var int 指令类型的定时任务 */
     const TASK_COMMAND_TYPE = 4;
-
-
-
-
-
-
-
-
-    /**
-     * server_prefix_value
-     */
-    const SERVER_PREFIX_VAL = 'jz_task';
-
-    /**
-     * server_php_path
-     */
-    const SERVER_PHP_PATH = 'server_php_path';
-
-
-
 }

@@ -24,9 +24,10 @@ class Message
      * @param string $message
      * @param bool $isExit
      * @param string $type
+     * @return void
+     * @Time：2025/2/2 03:49:30
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:51
      */
     public static function showInfo(string $message, bool $isExit = false, string $type = 'info')
     {
@@ -45,7 +46,7 @@ class Message
      * @param string $message
      * @param string $type
      * @return string
-     * @Time：2025/2/2 01:13:40
+     * @Time：2025/2/2 03:49:39
      * @Since：v2.0
      * @author：cxj
      */
@@ -63,9 +64,10 @@ class Message
      * 控制台输出表格
      * @param array $data
      * @param bool $exit
+     * @return void
+     * @Time：2025/2/2 03:49:50
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:53
      */
     public static function showTable(array $data, bool $exit = true)
     {
@@ -93,12 +95,13 @@ class Message
 
     /**
      * 输出异常
-     * @param mixed $exception
+     * @param $exception
      * @param string $type
      * @param bool $isExit
+     * @return void
+     * @Time：2025/2/2 03:50:00
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 16:16
      */
     public static function showException($exception, string $type = 'exception', bool $isExit = true)
     {
@@ -160,9 +163,10 @@ class Message
      * @param $errStr
      * @param bool $isExit
      * @param string $type
+     * @return void
+     * @Time：2025/2/2 03:50:11
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:08
      */
     public static function showSysError($errStr, bool $isExit = true, string $type = 'warring')
     {

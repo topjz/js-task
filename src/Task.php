@@ -269,9 +269,9 @@ class Task
      * @param int $time
      * @param int $used
      * @return $this
+     * @Time：2025/2/2 03:47:43
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/31 11:51
      */
     public function addCommand(string $command, string $alas, int $time = 1, int $used = 1): Task
     {

@@ -25,9 +25,10 @@ class Error
 {
     /**
      * Register Error
+     * @return void
+     * @Time：2025/2/2 03:47:33
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 17:12
      */
     public static function register()
     {

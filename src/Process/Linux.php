@@ -165,10 +165,11 @@ class Linux extends Process
     /**
      * 执行器
      * @param array $item
+     * @return void
      * @throws \Throwable
+     * @Time：2025/2/2 03:51:13
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 17:51
      */
     protected function invoker(array $item)
     {
@@ -193,9 +194,10 @@ class Linux extends Process
     /**
      * 通过闹钟信号执行
      * @param array $item
+     * @return mixed
+     * @Time：2025/2/2 03:51:25
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 18:45
      */
     protected function invokeByDefault(array $item)
     {
@@ -308,9 +310,9 @@ class Linux extends Process
     /**
      * 查看进程状态
      * @return array
+     * @Time：2025/2/2 03:51:35
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 20:10
      */
     protected function processStatus(): array
     {

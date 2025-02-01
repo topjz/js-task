@@ -178,11 +178,11 @@ class Table
 
     /**
      * 输出分隔行
-     * @param string $pos 位置
+     * @param string $pos
      * @return string
+     * @Time：2025/2/2 03:50:32
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:59
      */
     protected function renderSeparator(string $pos): string
     {
@@ -199,9 +199,9 @@ class Table
     /**
      * 输出表格头部
      * @return string
+     * @Time：2025/2/2 03:50:44
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:59
      */
     protected function renderHeader(): string
     {
@@ -226,10 +226,10 @@ class Table
     /**
      * 获取风格
      * @param string $style
-     * @return array
+     * @return string[]
+     * @Time：2025/2/2 03:50:52
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:59
      */
     protected function getStyle(string $style): array
     {
@@ -244,11 +244,11 @@ class Table
 
     /**
      * 输出表格
-     * @param array $dataList 表格数据
+     * @param array $dataList
      * @return string
+     * @Time：2025/2/2 03:51:01
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:59
      */
     public function render(array $dataList = []): string
     {
