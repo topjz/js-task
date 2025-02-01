@@ -4,6 +4,7 @@ namespace jz\Process;
 use jz\Command;
 use jz\Constants;
 use jz\Helper\Analysis;
+use jz\Helper\CheckEnv;
 use jz\Helper\Common;
 use jz\Helper\Log;
 use jz\Helper\Message;
@@ -211,10 +212,10 @@ abstract class Process
     protected function execute($item)
     {
         //根据任务类型执行
-        $daemon = TaskConfig::get(Constants::SERVER_DAEMON_KEY);
+        $daemon = TaskConfig::get(Constants::DAEMON);
 
         // 判断是否可写标准输出日志
-        if (Common::canWriteStd()) ob_start();
+        if (CheckEnv::canWriteStd()) ob_start();
         try {
             $type = $item['type'];
             switch ($type) {
@@ -233,27 +234,19 @@ abstract class Process
                     @pclose(@popen($item['command'], 'r'));
             }
         } catch (Exception $exception) {
-            if (Common::isWin()) {
-                Message::showException($exception, 'exception', !$daemon);
-            } else {
                 if (!$daemon) throw $exception;
 
                 //var_dump('exception');
-                Log::writeLog(Message::formatException($exception));
-            }
+                Message::writeLog(Message::formatException($exception));
         } catch (Throwable $exception) {
-            if (Common::isWin()) {
-                Message::showException($exception, 'exception', !$daemon);
-            } else {
                 if (!$daemon) throw $exception;
 
                 //var_dump('Throwable');
-                Log::writeLog(Message::formatException($exception));
-            }
+                Message::writeLog(Message::formatException($exception));
         }
 
         //Std_End
-        if (Common::canWriteStd()) {
+        if (CheckEnv::canWriteStd()) {
             $stdChar = ob_get_contents();
             if ($stdChar) Message::saveStdChar($stdChar);
             ob_end_clean();

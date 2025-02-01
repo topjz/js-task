@@ -11,74 +11,52 @@ use jz\Exception\ErrorException;
 
 /**
  * 系统信息、消息
- * Created by chen3jian
- * Date: 2021/7/30
- * Time: 23:52
+ * Created by cxj
  * Class Message
+ * @Since：v2.0
+ * @Time：2025/2/2 01:05:49
  * @package jz\Helper
  */
 class Message
 {
     /**
-     * 格式化异常信息
-     * @param ErrorException|Exception|Throwable $exception
+     * 输出信息
+     * @param string $message
+     * @param bool $isExit
      * @param string $type
-     * @return string
      * @author：cxj
      * @since：v1.0
-     * @Time: 2021/7/28 17:08
+     * @Time: 2021/8/4 19:51
      */
-    public static function formatException($exception, string $type = 'exception'): string
+    public static function showInfo(string $message, bool $isExit = false, string $type = 'info')
+    {
+        //格式化信息
+        $text = static::formatMessage($message, $type);
+
+        //记录日志
+        static::writeLog($text);
+
+        //输出信息
+        static::output($text, $isExit);
+    }
+
+    /**
+     * 格式化异常信息
+     * @param string $message
+     * @param string $type
+     * @return string
+     * @Time：2025/2/2 01:13:40
+     * @Since：v2.0
+     * @author：cxj
+     */
+    public static function formatMessage(string $message, string $type = 'error'): string
     {
         //参数
         $pid = getmypid();
         $date = date('Y/m/d H:i:s', time());
 
         //组装
-        return $date . " [$type] : " . $exception->getMessage() . ', File : ' . $exception->getFile() . ', Line : ' . $exception->getLine() . ", pid : $pid" . PHP_EOL;
-    }
-
-    /**
-     * 输出异常
-     * @param mixed $exception
-     * @param string $type
-     * @param bool $isExit
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 16:16
-     */
-    public static function showException($exception, string $type = 'exception', bool $isExit = true)
-    {
-        //格式化信息
-        $text = Log::formatException($exception, $type);
-
-        //记录日志
-        //var_dump('showException');
-        Log::writeLog($text);
-
-        //输出信息
-        self::output($text, $isExit);
-    }
-
-    /**
-     * 输出信息
-     * @param string $message
-     * @param false $isExit
-     * @param string $type
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:51
-     */
-    public static function showInfo(string $message, $isExit = false, $type = 'info')
-    {
-        //格式化信息
-        $text = Log::formatMessage($message, $type);
-
-        //记录日志
-        Log::writeLog($text);
-
-        //输出信息
-        self::output($text, $isExit);
+        return $date . " [$type] : " . $message . ", pid : $pid" . PHP_EOL;
     }
 
     /**
@@ -114,26 +92,67 @@ class Message
     }
 
     /**
+     * 输出异常
+     * @param mixed $exception
+     * @param string $type
+     * @param bool $isExit
+     * @author：cxj
+     * @since：v1.0
+     * @Time: 2021/7/28 16:16
+     */
+    public static function showException($exception, string $type = 'exception', bool $isExit = true)
+    {
+        // 格式化信息
+        $text = static::formatException($exception, $type);
+
+        // 记录日志
+        static::writeLog($text);
+
+        //输出信息
+        static::output($text, $isExit);
+    }
+
+    /**
+     * 格式化异常信息
+     * @param $exception
+     * @param string $type
+     * @return string
+     * @Time：2025/2/2 01:05:59
+     * @Since：v2.0
+     * @author：cxj
+     */
+    public static function formatException($exception, string $type = 'exception'): string
+    {
+        //参数
+        $pid = getmypid();
+        $date = date('Y/m/d H:i:s', time());
+
+        //组装
+        return $date . " [$type] : " . $exception->getMessage() . ', File : ' . $exception->getFile() . ', Line : ' . $exception->getLine() . ", pid : $pid" . PHP_EOL;
+    }
+
+    /**
      * 输出错误
      * @param string $errStr
      * @param bool $isExit
      * @param string $type
      * @param bool $log
+     * @return void
+     * @Time：2025/2/2 01:15:54
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 17:47
      */
     public static function showError(string $errStr, bool $isExit = true, string $type = 'error', bool $log = true)
     {
         //格式化信息
-        $text = Log::formatMessage($errStr, $type);
+        $text = static::formatMessage($errStr, $type);
 
         //记录日志
         //var_dump('showError');
-        if ($log) Log::writeLog($text);
+        if ($log) static::writeLog($text);
 
         //输出信息
-        self::output($text, $isExit);
+        static::output($text, $isExit);
     }
 
     /**
@@ -145,35 +164,22 @@ class Message
      * @since：v1.0
      * @Time: 2021/7/28 17:08
      */
-    public static function showSysError($errStr, $isExit = true, $type = 'warring')
+    public static function showSysError($errStr, bool $isExit = true, string $type = 'warring')
     {
         //格式化信息
-        $text = Log::formatMessage($errStr, $type);
+        $text = static::formatMessage($errStr, $type);
 
         //输出信息
         static::output($text, $isExit);
     }
 
     /**
-     * 输出字符串
-     * @param $char
-     * @param false $exit
+     * 保存标准输入|输出
+     * @param string $char
+     * @return void
+     * @Time：2025/2/2 01:16:27
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 16:17
-     */
-    public static function output($char, $exit = false)
-    {
-        echo $char;
-        if ($exit) exit();
-    }
-
-    /**
-     *保存标准输入|输出
-     * @param string $char 输入|输出
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/8/4 19:41
      */
     public static function saveStdChar(string $char)
     {
@@ -181,5 +187,59 @@ class Message
         $file = $path . date('Y_m_d') . '.std';
         $char = Common::convert_char($char);
         file_put_contents($file, $char, FILE_APPEND);
+    }
+
+    /**
+     * 输出字符串
+     * @param string $char
+     * @param bool $exit
+     * @return void
+     * @Time：2025/2/2 01:10:48
+     * @Since：v2.0
+     * @author：cxj
+     */
+    public static function output(string $char, bool $exit = false)
+    {
+        echo $char;
+        if ($exit) exit();
+    }
+
+    /**
+     * 保存日志
+     * @param string $message
+     * @return void
+     * @Time：2025/2/2 01:10:18
+     * @Since：v2.0
+     * @author：cxj
+     */
+    public static function writeLog(string $message)
+    {
+        // 日志文件
+        $path = Path::getLogPath();
+        $file = $path . date('Y_m_d') . '.log';
+
+        //加锁保存
+        $message = Common::convert_char($message);
+        file_put_contents($file, $message, FILE_APPEND | LOCK_EX);
+    }
+
+    /**
+     * 保存不同类型的日志
+     * @param string $message
+     * @param string $type
+     * @param bool $isExit
+     * @return void
+     * @Time：2025/2/2 01:20:29
+     * @Since：v2.0
+     * @author：cxj
+     */
+    public static function writeTypeLog(string $message, string $type = 'info', bool $isExit = false)
+    {
+        //格式化信息
+        $text = static::formatMessage($message, $type);
+
+        //记录日志
+        static::writeLog($text);
+        if ($isExit) exit();
     }
 }

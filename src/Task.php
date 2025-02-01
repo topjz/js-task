@@ -8,6 +8,7 @@
 namespace jz;
 
 use jz\Helper\Analysis;
+use jz\Helper\CheckEnv;
 use jz\Helper\Common;
 use jz\Helper\Message;
 use jz\Helper\Path;
@@ -33,94 +34,70 @@ class Task
      */
     private $taskList = [];
 
-
-
     /**
      * BaseTask constructor.
      */
     public function __construct()
     {
-        // 运行环境检测
-        Common::env();
+        // 检查运行环境
+        CheckEnv::basic();
         // 初始化
         $this->initialize();
-
-        // 设置自动任务前缀
-        $this->setPrefix(Constants::SERVER_PREFIX_VAL);
-
-        // 设置关闭错误注册
-        $this->setCloseErrorRegister();
-
-        // 判断是否为Windows运行环境
-        if (Common::isWin()) {
-            Path::setPhpPath();
-            Common::setCodePage();
-        }
     }
 
-
+    /**
+     * 初始化
+     * @return void
+     * @Time：2025/2/1 23:14:38
+     * @Since：v2.0
+     * @author：cxj
+     */
     private function initialize(){
-
         // 初始化基础配置
-        Env::set('prefix', 'Task');
-        Env::set('canEvent', Helper::canUseEvent());
-        Env::set('currentOs', $currentOs);
-        Env::set('canAsync', Helper::canUseAsyncSignal());
-        Env::set('closeErrorRegister', false);
+        Config::set(Constants::PREFIX, 'Task');
+        Config::set(Constants::CAN_EVENT, CheckEnv::canUseEvent());
+        Config::set(Constants::CAN_ASYNC, CheckEnv::canUseAsyncSignal());
+        Config::set(Constants::CLOSE_ERROR_REGISTER, false);
+    }
 
-        // 初始化PHP_BIN|CODE_PAGE
-        if ($currentOs == 1)
-        {
-            Helper::setPhpPath();
-            Helper::setCodePage();
-        }
-
+    /**
+     * 设置是否开启守护进程
+     * @param bool $daemon
+     * @return $this
+     * @Time：2025/2/1 23:44:39
+     * @Since：v2.0
+     * @author：cxj
+     */
+    public function setDaemon(bool $daemon = false): Task
+    {
+        Config::set(Constants::DAEMON, $daemon);
+        return $this;
     }
 
     /**
      * 设置自动任务前缀
      * @param string $prefix
      * @return $this
+     * @Time：2025/2/1 23:44:30
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/30 22:06
      */
     public function setPrefix(string $prefix): Task
     {
-        if (TaskConfig::get(Constants::SERVER_RUNTIME_PATH)) {
-            Message::showSysError(Constants::SERVER_RUNTIME_PATH_EMPTY_TIP);
+        if (Config::get(Constants::RUNTIME_PATH)) {
+            Message::showSysError(Constants::SYS_ERROR_RUNTIME_PATH);
         }
-        TaskConfig::set(Constants::SERVER_PREFIX_KEY, $prefix);
-        return $this;
-    }
-
-    /**
-     * 设置Runtime Path
-     * @param string $path
-     * @return $this
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/30 22:35
-     */
-    public function setRunTimePath(string $path): Task
-    {
-        if (!is_dir($path)) {
-            Message::showSysError("the path {$path} is not exist");
-        }
-        if (!is_writable($path)) {
-            Message::showSysError("the path {$path} is not writeable");
-        }
-        Path::setRunTimePath($path);
+        Config::set(Constants::PREFIX, $prefix);
         return $this;
     }
 
     /**
      * 设置时区
-     * @param $timeIdent
+     * @param string $timeIdent
      * @return $this
+     * @Time：2025/2/1 23:44:18
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/30 22:42
      */
     public function setTimeZone(string $timeIdent): Task
     {
@@ -129,48 +106,36 @@ class Task
     }
 
     /**
-     * 设置是否开启守护进程
-     * @param false $daemon
-     * @return $this
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/30 22:37
-     */
-    public function setDaemon(bool $daemon = false): Task
-    {
-        TaskConfig::set(Constants::SERVER_DAEMON_KEY, $daemon);
-        return $this;
-    }
-
-    /**
-     * 设置PHP运行路径
-     * @param $path
-     * @return $this
-     * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/30 22:42
-     */
-    public function setPhpPath($path): Task
-    {
-        $file = realpath($path);
-        if (!file_exists($file)) {
-            Message::showSysError("the path {$path} is not exists");
-        }
-        Path::setPhpPath($path);
-        return $this;
-    }
-
-    /**
      * 设置子进程挂掉自动重启
      * @param bool $isRec
      * @return $this
+     * @Time：2025/2/1 23:44:53
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/30 22:42
      */
-    public function setAutoRecover($isRec = false): Task
+    public function setAutoRecover(bool $isRec = false): Task
     {
-        TaskConfig::set(Constants::SERVER_AUTO_RECOVER_KEY, $isRec);
+        Config::set(Constants::CAN_AUTO_RECOVER, $isRec);
+        return $this;
+    }
+
+    /**
+     * 设置Runtime Path
+     * @param string $path
+     * @return $this
+     * @Time：2025/2/1 23:31:05
+     * @Since：v2.0
+     * @author：cxj
+     */
+    public function setRunTimePath(string $path): Task
+    {
+        if (!is_dir($path)) {
+            Message::showSysError("[" . "{$path}" . "]" . Constants::SYS_ERROR_RUNTIME_PATH_NOT_EXIST);
+        }
+        if (!is_writable($path)) {
+            Message::showSysError("[" . "{$path}" . "]" . Constants::SYS_ERROR_RUNTIME_PATH_NOT_WRITEABLE);
+        }
+        Config::set(Constants::RUNTIME_PATH, realpath($path));
         return $this;
     }
 
@@ -178,27 +143,27 @@ class Task
      * 设置关闭标准输出的STD文件记录
      * @param bool $close
      * @return $this
+     * @Time：2025/2/1 23:53:26
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/30 22:42
      */
-    public function setCloseStdOutLog($close = false): Task
+    public function setCloseStdOutLog(bool $close = false): Task
     {
-        TaskConfig::set(Constants::SERVER_STD_OUT_LOG_KEY, $close);
+        Config::set(Constants::CLOSE_STD_OUT_LOG, $close);
         return $this;
     }
 
     /**
      * 设置关闭系统错误注册
-     * @param false $close
+     * @param bool $close
      * @return $this
+     * @Time：2025/2/1 23:53:15
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/30 22:11
      */
     public function setCloseErrorRegister(bool $close = false): Task
     {
-        TaskConfig::set(Constants::SERVER_ERROR_REGISTER_SWITCH_KEY, $close);
+        Config::set(Constants::CLOSE_ERROR_REGISTER, $close);
         return $this;
     }
 
@@ -209,18 +174,18 @@ class Task
      * @param $notify
      * @return $this
      * @author：cxj
-     * @since：v1.0
+     * @since：v2.0
      * @Time: 2021/7/30 23:08
      */
     public function setErrorRegisterNotify($notify): Task
     {
-        if (TaskConfig::get(Constants::SERVER_ERROR_REGISTER_SWITCH_KEY)) {
-            Message::showSysError(Constants::SERVER_NOTIFY_MUST_OPEN_ERROR_REGISTER_TIP);
+        if (Config::get(Constants::CLOSE_ERROR_REGISTER)) {
+            Message::showSysError(Constants::SYS_ERROR_NOTIFY_MUST_CLOSE_ERROR_REGISTER);
         }
         if (!$notify instanceof Closure && !is_string($notify)) {
-            Message::showSysError(Constants::SERVER_NOTIFY_PARAMS_CHECK_TIP);
+            Message::showSysError(Constants::SYS_ERROR_NOTIFY_PARAMS_CHECK);
         }
-        TaskConfig::set(Constants::SERVER_NOTIFY_KEY, $notify);
+        Config::set(Constants::SERVER_NOTIFY_KEY, $notify);
         return $this;
     }
 
@@ -231,16 +196,18 @@ class Task
      * @param int $time 间隔时间
      * @param int $used 开启进程数
      * @return $this
-     * @throws
+     * @Time：2025/2/2 00:19:38
+     * @Since：v2.0
+     * @author：cxj
      */
     public function addFunc(Callable $func, string $alas, int $time = 1, int $used = 1): Task
     {
         $uniqueId = md5($alas);
-        if (!($func instanceof Closure)) Message::showSysError(Constants::SERVER_CHECK_CLOSURE_TYPE_TIP);
-        if (isset($this->taskList[$uniqueId])) Message::showSysError("task $alas already exists");
-        Common::checkTaskTime($time);
+        if (!($func instanceof Closure)) Message::showSysError(Constants::SYS_ERROR_ADDFUNC_CHECK_PARAMETER);
+        if (isset($this->taskList[$uniqueId])) Message::showSysError("[" . "{$alas}" . "]" . Constants::SYS_ERROR_TASK_ALREADY_EXISTS);
+        CheckEnv::checkTaskTime($time);
         $this->taskList[$uniqueId] = [
-            'type' => Constants::SERVER_TASK_FUNC_TYPE,
+            'type' => Constants::TASK_FUNC_TYPE,
             'func' => $func,
             'alas' => $alas,
             'time' => $time,
@@ -250,37 +217,38 @@ class Task
     }
 
     /**
+     * 添加任务定时执行类的方法
      * @param string $class
      * @param string $func
      * @param string $alas
      * @param int $time
      * @param int $used
      * @return $this
+     * @Time：2025/2/2 00:30:39
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/31 11:51
      */
     public function addClass(string $class, string $func, string $alas, int $time = 1, int $used = 1): Task
     {
         $uniqueId = md5($alas);
         if (!class_exists($class)) {
-            Message::showSysError("class {$class} is not exist");
+            Message::showSysError("["."{$class}"."]".Constants::SYS_ERROR_CLASS_NOT_EXISTS);
         }
         if (isset($this->taskList[$uniqueId])) {
-            Message::showSysError(Constants::SERVER_TASK_SAME_NAME_TIP);
+            Message::showSysError(Constants::SYS_ERROR_TASK_SAME_NAME);
         }
         try {
             $reflect = new ReflectionClass($class);
             if (!$reflect->hasMethod($func)) {
-                Message::showSysError("class {$class}'s func {$func} is not exist");
+                Message::showSysError("["."{$class}/{$func}"."]".Constants::SYS_ERROR_METHOD_IN_CLASS_NOT_EXISTS);
             }
             $method = new ReflectionMethod($class, $func);
             if (!$method->isPublic()) {
-                Message::showSysError("class {$class}'s func {$func} must public");
+                Message::showSysError("["."{$class}/{$func}"."]".Constants::SYS_ERROR_METHOD_IN_CLASS_MUST_PUBLIC);
             }
-            Common::checkTaskTime($time);
+            CheckEnv::checkTaskTime($time);
             $this->taskList[$uniqueId] = [
-                'type' => $method->isStatic() ? Constants::SERVER_TASK_STATIC_CLASS_TYPE : Constants::SERVER_TASK_OBJECT_CLASS_TYPE,
+                'type' => $method->isStatic() ? Constants::TASK_STATIC_CLASS_TYPE : Constants::TASK_OBJECT_CLASS_TYPE,
                 'func' => $func,
                 'alas' => $alas,
                 'time' => $time,
@@ -308,15 +276,15 @@ class Task
     public function addCommand(string $command, string $alas, int $time = 1, int $used = 1): Task
     {
         $uniqueId = md5($alas);
-        if (!Common::canUseExcCommand()) {
-            Message::showSysError(Constants::SERVER_PROCESS_OPEN_CLOSE_DISABLED_TIP);
+        if (!CheckEnv::canUseExcCommand()) {
+            Message::showSysError(Constants::SYS_ERROR_ENABLE_PROCESS_POPEN_PCLOSE);
         }
         if (isset($this->taskList[$uniqueId])) {
-            Message::showSysError(Constants::SERVER_TASK_SAME_NAME_TIP);
+            Message::showSysError(Constants::SYS_ERROR_TASK_SAME_NAME);
         }
-        Common::checkTaskTime($time);
+        CheckEnv::checkTaskTime($time);
         $this->taskList[$uniqueId] = [
-            'type' => Constants::SERVER_TASK_COMMAND_TYPE,
+            'type' => Constants::TASK_COMMAND_TYPE,
             'alas' => $alas,
             'time' => $time,
             'used' => $used,
@@ -328,17 +296,18 @@ class Task
 
     /**
      * 任务开始
+     * @return void
+     * @Time：2025/2/2 00:47:17
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 20:58
      */
     public function start()
     {
         if (!$this->taskList) {
-            Helper::showSysError(Constants::SERVER_TASK_EMPTY_TIP);
+            Message::showSysError(Constants::SYS_ERROR_TIME);
         }
 
-        if (!TaskConfig::get(Constants::SERVER_ERROR_REGISTER_SWITCH_KEY)) {
+        if (!Config::get(Constants::CLOSE_ERROR_REGISTER)) {
             Error::register();
         }
 
@@ -352,9 +321,10 @@ class Task
 
     /**
      * 任务状态
+     * @return void
+     * @Time：2025/2/2 00:49:29
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/31 12:06
      */
     public function status()
     {
@@ -365,7 +335,10 @@ class Task
     /**
      * 任务停止
      * @param bool $force
-     * @throws
+     * @return void
+     * @Time：2025/2/2 00:49:38
+     * @Since：v2.0
+     * @author：cxj
      */
     public function stop(bool $force = false)
     {
@@ -375,14 +348,14 @@ class Task
 
     /**
      * 获取进程管理实例
-     * @return Linux|Win
+     * @return Linux
+     * @Time：2025/2/2 00:50:14
+     * @Since：v2.0
      * @author：cxj
-     * @since：v1.0
-     * @Time: 2021/7/28 20:59
      */
-    private function getProcess()
+    private function getProcess(): Linux
     {
         $taskList = $this->taskList;
-        return Common::isWin() ? (new Win($taskList)) : (new Linux($taskList));
+        return new Linux($taskList);
     }
 }

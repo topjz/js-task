@@ -8,8 +8,10 @@ declare(ticks = 1);
 
 namespace jz\Process;
 
+use jz\Config;
 use jz\Constants;
 use jz\Helper\Analysis;
+use jz\Helper\CheckEnv;
 use jz\Helper\Common;
 use jz\Helper\Log;
 use jz\Helper\Message;
@@ -37,7 +39,7 @@ class Linux extends Process
     public function __construct(array $taskList)
     {
         parent::__construct($taskList);
-        if (Common::canUseAsyncSignal()) Common::openAsyncSignal();
+        if (CheckEnv::canUseAsyncSignal()) Common::openAsyncSignal();
     }
 
     /**
@@ -55,7 +57,7 @@ class Linux extends Process
         ]);
 
         //异步处理
-        if (TaskConfig::get(Constants::SERVER_DAEMON_KEY)) {
+        if (TaskConfig::get(Constants::DAEMON)) {
             Common::setMask();
             $this->fork(
                 function () {
@@ -115,7 +117,7 @@ class Linux extends Process
     {
         foreach ($this->taskList as $item) {
             //提取参数
-            $prefix = TaskConfig::get(Constants::SERVER_PREFIX_KEY);
+            $prefix = TaskConfig::get(Constants::PREFIX);
             $item['data'] = date('Y-m-d H:i:s');
             $item['alas'] = "{$prefix}_{$item['alas']}";
             $used = $item['used'];
@@ -167,7 +169,7 @@ class Linux extends Process
         // 获取父进程id
         $item['ppid'] = posix_getppid();
         $text = "this worker {$item['alas']}";
-        Log::writeTypeLog("$text is start");
+        Message::writeTypeLog("$text is start");
 
         // 进程标题
         Common::cli_set_process_title($item['alas']);
@@ -175,7 +177,7 @@ class Linux extends Process
         // 捕获kill发出的SIGTERM信号
         // SIGTERM 程序结束(terminate、信号), 与SIGKILL不同的是该信号可以被阻塞和处理. 通常用来要求程序自己正常退出. shell命令kill缺省产生这个信号.
         pcntl_signal(SIGTERM, function () use ($text) {
-            Log::writeTypeLog("listened to the kill command, $text exit the program for safety");
+            Message::writeTypeLog("listened to the kill command, $text exit the program for safety");
         });
 
         //执行任务
@@ -207,7 +209,7 @@ class Linux extends Process
 
             // 信号处理(同步/异步)
             // 是处理已经收到的信号，调用每个通过pcntl_signal() 安装的处理器的回调方法。
-            if (!Common::canUseAsyncSignal()) pcntl_signal_dispatch();
+            if (!CheckEnv::canUseAsyncSignal()) pcntl_signal_dispatch();
         }
     }
 
@@ -221,7 +223,7 @@ class Linux extends Process
     protected function checkDaemonForExit(array $item)
     {
         if (!posix_kill($item['ppid'], 0)) {
-            Log::writeTypeLog("listened exit command, this worker {$item['alas']} is exiting safely", 'info', true);
+            Message::writeTypeLog("listened exit command, this worker {$item['alas']} is exiting safely", 'info', true);
         }
     }
 
@@ -234,12 +236,12 @@ class Linux extends Process
     protected function daemonWait()
     {
         //设置进程标题
-        Common::cli_set_process_title(TaskConfig::get(Constants::SERVER_PREFIX_KEY));
+        Common::cli_set_process_title(TaskConfig::get(Constants::PREFIX));
 
         //输出信息
         $text = "this manager";
-        Log::writeTypeLog("$text is start");
-        if (!TaskConfig::get(Constants::SERVER_DAEMON_KEY)) {
+        Message::writeTypeLog("$text is start");
+        if (!Config::get(Constants::DAEMON)) {
             Message::showTable($this->processStatus(), false);
             Message::showInfo('start success,press ctrl+c to stop');
         }
@@ -247,7 +249,7 @@ class Linux extends Process
         // 捕获kill发出的SIGTERM信号
         // SIGTERM 程序结束(terminate、信号), 与SIGKILL不同的是该信号可以被阻塞和处理. 通常用来要求程序自己正常退出. shell命令kill缺省产生这个信号.
         pcntl_signal(SIGTERM, function () use ($text) {
-            Log::writeTypeLog("listened kill command $text is exiting safely", 'info', true);
+            Message::writeTypeLog("listened kill command $text is exiting safely", 'info', true);
         });
 
         //挂起进程
@@ -262,7 +264,7 @@ class Linux extends Process
                 $forceExitText = "listened exit command, $text is exiting unsafely";
                 if ($command['type'] == 'start') {
                     if ($command['time'] > $this->startTime) {
-                        Log::writeTypeLog($forceExitText);
+                        Message::writeTypeLog($forceExitText);
                         posix_kill(0, SIGKILL);
                     }
                 }
@@ -273,14 +275,14 @@ class Linux extends Process
                         'msgType' => 1,
                         'status' => $report,
                     ]);
-                    Log::writeTypeLog($statusText);
+                    Message::writeTypeLog($statusText);
                 }
                 if ($command['type'] == 'stop') {
                     if ($command['force']) {
-                        Log::writeTypeLog($forceExitText);
+                        Message::writeTypeLog($forceExitText);
                         posix_kill(0, SIGKILL);
                     } else {
-                        Log::writeTypeLog($exitText);
+                        Message::writeTypeLog($exitText);
                         exit();
                     }
                 }
@@ -288,10 +290,10 @@ class Linux extends Process
             }, $this->startTime);
 
             //信号调度
-            if (!Common::canUseAsyncSignal()) pcntl_signal_dispatch();
+            if (!CheckEnv::canUseAsyncSignal()) pcntl_signal_dispatch();
 
             // 检查进程
-            if (TaskConfig::get(Constants::SERVER_AUTO_RECOVER_KEY)) $this->processStatus();
+            if (Config::get(Constants::CAN_AUTO_RECOVER)) $this->processStatus();
         }
     }
 
@@ -316,9 +318,9 @@ class Linux extends Process
                 $item['status'] = 'stop';
 
                 // 进程退出,重新fork
-                if (TaskConfig::get(Constants::SERVER_AUTO_RECOVER_KEY)) {
+                if (Config::get(Constants::CAN_AUTO_RECOVER)) {
                     $this->forkItemExec($item['item']);
-                    Log::writeTypeLog("the worker {$item['name']}(pid:{$pid}) is stop,try to fork a new one");
+                    Message::writeTypeLog("the worker {$item['name']}(pid:{$pid}) is stop,try to fork a new one");
                     unset($this->processList[$key]);
                 }
             }

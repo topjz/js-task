@@ -8,10 +8,11 @@
 namespace jz;
 
 /**
- * Created by chen3jian
- * Date: 2021/7/30
- * Time: 23:49
- * Class TaskConfig
+ * 系统配置
+ * Created by cxj
+ * Class Config
+ * @Since：v2.0
+ * @Time：2025/2/1 23:10:13
  * @package jz
  */
 class Config

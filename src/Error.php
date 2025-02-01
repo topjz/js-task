@@ -105,7 +105,7 @@ class Error
 
             //本地日志储存
             //var_dump('report');
-            Log::writeLog($text);
+            Message::writeLog($text);
 
 
         } catch (\Throwable $e) {
