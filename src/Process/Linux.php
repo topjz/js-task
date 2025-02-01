@@ -37,7 +37,7 @@ class Linux extends Process
     public function __construct(array $taskList)
     {
         parent::__construct($taskList);
-        if (Analysis::canUseAsyncSignal()) Common::openAsyncSignal();
+        if (Common::canUseAsyncSignal()) Common::openAsyncSignal();
     }
 
     /**
@@ -207,7 +207,7 @@ class Linux extends Process
 
             // 信号处理(同步/异步)
             // 是处理已经收到的信号，调用每个通过pcntl_signal() 安装的处理器的回调方法。
-            if (!Analysis::canUseAsyncSignal()) pcntl_signal_dispatch();
+            if (!Common::canUseAsyncSignal()) pcntl_signal_dispatch();
         }
     }
 
@@ -288,7 +288,7 @@ class Linux extends Process
             }, $this->startTime);
 
             //信号调度
-            if (!Analysis::canUseAsyncSignal()) pcntl_signal_dispatch();
+            if (!Common::canUseAsyncSignal()) pcntl_signal_dispatch();
 
             // 检查进程
             if (TaskConfig::get(Constants::SERVER_AUTO_RECOVER_KEY)) $this->processStatus();

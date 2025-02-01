@@ -33,13 +33,17 @@ class Task
      */
     private $taskList = [];
 
+
+
     /**
      * BaseTask constructor.
      */
     public function __construct()
     {
         // 运行环境检测
-        Analysis::env();
+        Common::env();
+        // 初始化
+        $this->initialize();
 
         // 设置自动任务前缀
         $this->setPrefix(Constants::SERVER_PREFIX_VAL);
@@ -52,6 +56,25 @@ class Task
             Path::setPhpPath();
             Common::setCodePage();
         }
+    }
+
+
+    private function initialize(){
+
+        // 初始化基础配置
+        Env::set('prefix', 'Task');
+        Env::set('canEvent', Helper::canUseEvent());
+        Env::set('currentOs', $currentOs);
+        Env::set('canAsync', Helper::canUseAsyncSignal());
+        Env::set('closeErrorRegister', false);
+
+        // 初始化PHP_BIN|CODE_PAGE
+        if ($currentOs == 1)
+        {
+            Helper::setPhpPath();
+            Helper::setCodePage();
+        }
+
     }
 
     /**
@@ -215,7 +238,7 @@ class Task
         $uniqueId = md5($alas);
         if (!($func instanceof Closure)) Message::showSysError(Constants::SERVER_CHECK_CLOSURE_TYPE_TIP);
         if (isset($this->taskList[$uniqueId])) Message::showSysError("task $alas already exists");
-        Analysis::checkTaskTime($time);
+        Common::checkTaskTime($time);
         $this->taskList[$uniqueId] = [
             'type' => Constants::SERVER_TASK_FUNC_TYPE,
             'func' => $func,
@@ -255,7 +278,7 @@ class Task
             if (!$method->isPublic()) {
                 Message::showSysError("class {$class}'s func {$func} must public");
             }
-            Analysis::checkTaskTime($time);
+            Common::checkTaskTime($time);
             $this->taskList[$uniqueId] = [
                 'type' => $method->isStatic() ? Constants::SERVER_TASK_STATIC_CLASS_TYPE : Constants::SERVER_TASK_OBJECT_CLASS_TYPE,
                 'func' => $func,
@@ -285,13 +308,13 @@ class Task
     public function addCommand(string $command, string $alas, int $time = 1, int $used = 1): Task
     {
         $uniqueId = md5($alas);
-        if (!Analysis::canUseExcCommand()) {
+        if (!Common::canUseExcCommand()) {
             Message::showSysError(Constants::SERVER_PROCESS_OPEN_CLOSE_DISABLED_TIP);
         }
         if (isset($this->taskList[$uniqueId])) {
             Message::showSysError(Constants::SERVER_TASK_SAME_NAME_TIP);
         }
-        Analysis::checkTaskTime($time);
+        Common::checkTaskTime($time);
         $this->taskList[$uniqueId] = [
             'type' => Constants::SERVER_TASK_COMMAND_TYPE,
             'alas' => $alas,

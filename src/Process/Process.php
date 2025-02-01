@@ -152,7 +152,7 @@ abstract class Process
         if ($item['time'] === 0) {
             $this->invokerByDirect($item);
         } else {
-            Analysis::canUseEvent() ? $this->invokeByEvent($item) : $this->invokeByDefault($item);
+            Common::canUseEvent() ? $this->invokeByEvent($item) : $this->invokeByDefault($item);
         }
     }
 
@@ -214,7 +214,7 @@ abstract class Process
         $daemon = TaskConfig::get(Constants::SERVER_DAEMON_KEY);
 
         // 判断是否可写标准输出日志
-        if (Analysis::canWriteStd()) ob_start();
+        if (Common::canWriteStd()) ob_start();
         try {
             $type = $item['type'];
             switch ($type) {
@@ -253,7 +253,7 @@ abstract class Process
         }
 
         //Std_End
-        if (Analysis::canWriteStd()) {
+        if (Common::canWriteStd()) {
             $stdChar = ob_get_contents();
             if ($stdChar) Message::saveStdChar($stdChar);
             ob_end_clean();
