@@ -36,10 +36,10 @@ class Config
     /**
      * 获取配置
      * @param string $key
-     * @return mixed
+     * @return false|mixed
+     * @Time：2025/2/3 17:04:50
+     * @Since：v2.0
      * @author：cxj
-     * @since：v2.0
-     * @Time: 2021/7/28 20:58
      */
     public static function get(string $key)
     {
