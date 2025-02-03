@@ -43,6 +43,6 @@ class Config
      */
     public static function get(string $key)
     {
-        return isset(static::$list[$key]) ?? false;
+        return isset(static::$list[$key]) ? static::$list[$key] : false;
     }
 }
