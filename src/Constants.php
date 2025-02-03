@@ -38,7 +38,7 @@ class Constants
     const CLOSE_STD_OUT_LOG = 'closeStdOutLog';
 
     /** @var string 系统错误：请设置runtime path */
-    const SYS_ERROR_SET_RUNTIME_PATH = 'please set runTimePath!';
+    const SYS_ERROR_SET_RUNTIME_PATH = 'please set runTimePath';
 
     /** @var string 系统错误：setPrefix方法必须在setRunTimePath之前使用 */
     const SYS_ERROR_RUNTIME_PATH = 'Should use setPrefix before setRunTimePath';
